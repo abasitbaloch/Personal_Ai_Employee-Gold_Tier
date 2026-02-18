@@ -1,0 +1,58 @@
+# AI Employee Vault - Security .gitignore
+# Prevents sensitive data from being committed to GitHub
+
+# Browser sessions and authentication data (CRITICAL - Contains login credentials)
+user_data/
+/user_data/
+
+# Environment variables and API keys
+.env
+.env.local
+.env.*.local
+*.env
+
+# OAuth and authentication credentials
+credentials.json
+token.json
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*.pyc
+*$py.class
+*.so
+.Python
+
+# Claude Code configuration (may contain API keys)
+.claude/
+/.claude/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs with potentially sensitive data
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Backup files
+*.bak
+*.backup
+
+# OS generated files
+Thumbs.db
+desktop.ini
