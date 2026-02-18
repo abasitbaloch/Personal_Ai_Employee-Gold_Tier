@@ -56,3 +56,5 @@ ENV/
 # OS generated files
 Thumbs.db
 desktop.ini
+# Obsidian local workspace settings
+.obsidian/
