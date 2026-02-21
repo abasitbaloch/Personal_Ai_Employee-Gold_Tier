@@ -9,6 +9,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+from Scripts.retry_handler import with_retry
 
 # Business keywords to monitor
 BUSINESS_KEYWORDS = ['client', 'urgent', 'sale', 'project', 'pricing']
@@ -25,6 +26,7 @@ def setup_directories():
     NEEDS_ACTION_BUSINESS.mkdir(parents=True, exist_ok=True)
 
 
+@with_retry(max_attempts=3)
 def check_for_business_messages(page):
     """
     Check Facebook messages for business-critical keywords.
@@ -77,6 +79,18 @@ def check_for_business_messages(page):
         print(f"Error checking messages: {e}")
 
     return business_messages
+
+
+@with_retry(max_attempts=3)
+def navigate_to_facebook(page):
+    """Navigate to Facebook Messages with retry logic."""
+    page.goto('https://www.facebook.com/messages/t/')
+
+
+@with_retry(max_attempts=3)
+def reload_page(page):
+    """Reload page with retry logic."""
+    page.reload()
 
 
 def create_action_item(message_data):
@@ -132,7 +146,7 @@ def run_watcher():
         page = context.pages[0] if context.pages else context.new_page()
 
         # Navigate to Facebook Messages
-        page.goto('https://www.facebook.com/messages/t/')
+        navigate_to_facebook(page)
 
         print("[SUCCESS] Browser launched. Waiting for login if needed...\n")
         time.sleep(10)  # Give user time to log in on first run
@@ -145,7 +159,7 @@ def run_watcher():
                 print(f"[{datetime.now().strftime('%H:%M:%S')}] Check #{check_count} - Scanning messages...")
 
                 # Refresh the page to get latest messages
-                page.reload()
+                reload_page(page)
                 time.sleep(3)
 
                 # Check for business messages

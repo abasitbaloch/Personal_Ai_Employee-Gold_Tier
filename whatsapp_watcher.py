@@ -9,6 +9,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+from Scripts.retry_handler import with_retry
 
 # Paths
 VAULT_ROOT = Path(__file__).parent
@@ -66,6 +67,13 @@ def create_action_file(sender, message_text):
     return filename
 
 
+@with_retry(max_attempts=3)
+def navigate_to_whatsapp(page):
+    """Navigate to WhatsApp Web with retry logic."""
+    page.goto('https://web.whatsapp.com', timeout=60000)
+
+
+@with_retry(max_attempts=3)
 def scan_whatsapp_messages(page):
     """Scan WhatsApp Web for unread messages with urgent keywords."""
     try:
@@ -139,7 +147,7 @@ def run_whatsapp_watcher():
             page = browser.pages[0] if browser.pages else browser.new_page()
 
             print("[WATCHER] Navigating to WhatsApp Web...")
-            page.goto('https://web.whatsapp.com', timeout=60000)
+            navigate_to_whatsapp(page)
 
             # Wait for WhatsApp to load (either QR code or chat list)
             print("[INFO] Waiting for WhatsApp to load...")

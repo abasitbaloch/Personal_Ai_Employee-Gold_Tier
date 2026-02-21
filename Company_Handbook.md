@@ -104,3 +104,77 @@
 3. Process Personal tasks from /Needs_Action/Personal/
 4. Update Dashboard.md with categorized metrics
 5. STOP
+
+## 🔌 Active MCP Servers (Gold Tier Infrastructure)
+
+**Browser MCP Server:**
+- **Purpose:** Headless web navigation and research capabilities
+- **Use Cases:** Automated web scraping, competitive intelligence gathering, market research, and real-time data extraction
+- **Installation:** `npx @anthropic/browser-mcp`
+- **Benefits:** Enables the AI Employee to autonomously browse websites, extract information, and perform web-based research tasks without manual intervention
+
+**Memory MCP Server:**
+- **Purpose:** Persistent entity memory and context retention across sessions
+- **Use Cases:** Remembering client preferences, tracking ongoing projects, maintaining conversation history, and building long-term knowledge graphs
+- **Installation:** `npx @modelcontextprotocol/server-memory`
+- **Benefits:** Provides the AI Employee with persistent memory capabilities, allowing it to recall past interactions, client details, and business context across multiple sessions
+
+**Setup Instructions:**
+- Run `setup_mcps.bat` from the root directory to install both MCP servers
+- Restart Claude Code after installation to activate the servers
+- MCP servers operate token-free and enhance the AI Employee's autonomous capabilities
+
+## 💼 Odoo ERP Integration (Gold Tier Accounting System)
+
+**Overview:**
+The AI Employee Vault integrates with Odoo Community Edition (self-hosted) for professional accounting, invoicing, and revenue tracking. This provides real-time financial intelligence for the CEO Briefing Generator.
+
+**Architecture:**
+- **Odoo 16:** Open-source ERP system running in Docker container
+- **PostgreSQL 15:** Database backend for Odoo
+- **JSON-RPC API:** Python integration via `Scripts/odoo_rpc_integration.py`
+- **Graceful Degradation:** Automatic fallback to mock data if Odoo is offline
+
+**Starting the ERP System:**
+```bash
+# Start Odoo and PostgreSQL containers
+docker-compose up -d
+
+# Check container status
+docker-compose ps
+
+# View logs
+docker-compose logs -f odoo
+
+# Stop containers
+docker-compose down
+```
+
+**First-Time Setup:**
+1. Run `docker-compose up -d` to start the containers
+2. Wait 30-60 seconds for Odoo to initialize
+3. Open browser to http://localhost:8069
+4. Create your first database (use credentials from docker-compose.yml)
+5. Default login: admin / admin (change immediately after first login)
+6. Install the "Accounting" module from Odoo Apps
+
+**Integration Features:**
+- **Automatic Revenue Tracking:** Weekly Auditor fetches real invoice data from Odoo
+- **Invoice Creation:** Create customer invoices programmatically via `create_invoice()`
+- **Revenue Metrics:** Get total revenue, invoice counts, and financial KPIs
+- **Retry Logic:** All API calls use `@with_retry` decorator for network resilience
+- **Fallback Mode:** If Odoo is unreachable, system falls back to mock calculations
+
+**API Functions (Scripts/odoo_rpc_integration.py):**
+- `authenticate()` - Connect to Odoo and obtain session
+- `create_invoice(partner_name, amount, description)` - Create customer invoice
+- `get_revenue_metrics()` - Retrieve total revenue and invoice data
+
+**Weekly Auditor Integration:**
+The CEO Briefing Generator automatically attempts to fetch revenue from Odoo. If Odoo is offline or unreachable, it gracefully falls back to mock revenue calculations based on completed tasks. The data source is clearly labeled in the briefing report.
+
+**Troubleshooting:**
+- If Odoo won't start: Check Docker is running and ports 8069/5432 are available
+- If authentication fails: Verify credentials in `Scripts/odoo_rpc_integration.py` match Odoo setup
+- If connection times out: Ensure containers are running with `docker-compose ps`
+- Check logs: `docker-compose logs odoo` for detailed error messages

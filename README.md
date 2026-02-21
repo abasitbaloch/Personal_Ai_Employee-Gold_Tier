@@ -9,6 +9,8 @@
 [![Playwright](https://img.shields.io/badge/Playwright-Browser_Automation-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev/)
 [![Obsidian](https://img.shields.io/badge/Obsidian-Knowledge_Base-7C3AED?style=for-the-badge&logo=obsidian&logoColor=white)](https://obsidian.md/)
 [![Claude](https://img.shields.io/badge/Claude-Sonnet_4.6-D97706?style=for-the-badge&logo=anthropic&logoColor=white)](https://www.anthropic.com/)
+[![Docker](https://img.shields.io/badge/Docker-Odoo_ERP-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![MCP](https://img.shields.io/badge/MCP-Browser_+_Memory-6366F1?style=for-the-badge&logo=anthropic&logoColor=white)](https://modelcontextprotocol.io/)
 
 **From Reactive Chatbot to Proactive Digital Employee**
 
@@ -81,6 +83,14 @@ graph TD
     subgraph BI["📈 BUSINESS INTELLIGENCE"]
         BG[🎯 Business_Goals.md<br/>Q1 2026 Targets]
         BRIEF[📊 CEO_Briefing_*.md]
+        ODOO[💼 Odoo ERP Docker<br/>Accounting & Invoicing]
+    end
+
+    %% Reliability Layer
+    subgraph Reliability["🛡️ RELIABILITY LAYER"]
+        WATCHDOG[🐕 Watchdog Process Manager<br/>24/7 Auto-Restart]
+        RETRY[🔄 Retry Handler<br/>Exponential Backoff]
+        MCP[🔌 MCP Servers<br/>Browser + Memory]
     end
 
     %% Main Data Flow
@@ -114,10 +124,22 @@ graph TD
     %% CEO Briefing Flow
     ORCH -.->|Triggers Daily| CEOB
     CEOB -->|Reads Targets| BG
+    CEOB -->|Queries Revenue| ODOO
     CEOB -->|Analyzes| DONE
     CEOB -->|Analyzes| LOGS
     CEOB -->|Generates| BRIEF
     BRIEF --> LOGS
+
+    %% Reliability Connections
+    WATCHDOG -.->|Monitors| ORCH
+    WATCHDOG -.->|Monitors| WAW
+    WATCHDOG -.->|Monitors| TWW
+    WATCHDOG -.->|Monitors| FBW
+    RETRY -.->|Protects| WAW
+    RETRY -.->|Protects| TWW
+    RETRY -.->|Protects| FBW
+    RETRY -.->|Protects| ODOO
+    MCP -.->|Enhances| ORCH
 
     %% Orchestrator Loop
     ORCH -->|Every 30s| NA
@@ -131,6 +153,7 @@ graph TD
     classDef action fill:#EF4444,stroke:#DC2626,stroke-width:2px,color:#fff
     classDef output fill:#06B6D4,stroke:#0891B2,stroke-width:2px,color:#fff
     classDef bi fill:#EC4899,stroke:#DB2777,stroke-width:2px,color:#fff
+    classDef reliability fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#fff
 
     class WA,TW,FB,GM,BANK external
     class WAW,TWW,FBW,GMW,FSW perception
@@ -138,7 +161,8 @@ graph TD
     class ORCH,CDI,SSG,CEOB reasoning
     class PA,DRAFT,HUMAN action
     class DONE,LOGS,DASH output
-    class BG,BRIEF bi
+    class BG,BRIEF,ODOO bi
+    class WATCHDOG,RETRY,MCP reliability
 ```
 
 ---
@@ -346,9 +370,129 @@ python Scripts/ralph_wiggum_loop.py
 
 ---
 
+#### 🛡️ 5. Production-Grade Reliability System
+**Files:** `watchdog.py`, `Scripts/retry_handler.py`
+
+Enterprise-level error recovery and process management ensuring 24/7 uptime with automatic failure recovery.
+
+**🐕 Watchdog Process Manager** (`watchdog.py`)
+- Monitors all critical processes (orchestrator, watchers) continuously
+- Detects crashed processes via PID checking
+- Automatically restarts failed processes with logging
+- Tracks restart counts and process health metrics
+- Provides graceful shutdown on Ctrl+C
+- Ensures true 24/7 autonomous operation
+
+**🔄 Retry Handler with Exponential Backoff** (`Scripts/retry_handler.py`)
+- `@with_retry` decorator for all network operations
+- Configurable max_attempts, base_delay, and max_delay
+- Exponential backoff: 1s → 2s → 4s → 8s → 16s
+- Catches transient errors (network blips, timeouts, API rate limits)
+- Detailed logging of retry attempts and failures
+- Applied to all Playwright navigation and Odoo API calls
+
+**Protected Operations:**
+- ✅ Facebook/WhatsApp/Twitter navigation
+- ✅ Page reloads and message scanning
+- ✅ Odoo ERP authentication and API calls
+- ✅ All external network requests
+
+**Trigger Command:**
+```bash
+python watchdog.py  # Start process manager
+```
+
+---
+
+#### 🔌 6. Multiple MCP Servers (Model Context Protocol)
+**Setup:** `setup_mcps.bat`
+
+Token-free MCP server integration for enhanced AI capabilities and persistent memory.
+
+**📱 Browser MCP Server**
+- Headless web navigation and automation
+- Competitive intelligence gathering
+- Market research and data extraction
+- Real-time web scraping capabilities
+- Installation: `npx @anthropic/browser-mcp`
+
+**🧠 Memory MCP Server**
+- Persistent entity memory across sessions
+- Client preference tracking
+- Conversation history retention
+- Long-term knowledge graph building
+- Installation: `npx @modelcontextprotocol/server-memory`
+
+**Benefits:**
+- 🚀 Enhanced autonomous research capabilities
+- 💾 Context retention between sessions
+- 🔍 Intelligent web data extraction
+- 🤝 Better client relationship management
+
+**Setup:**
+```bash
+setup_mcps.bat  # Install both MCP servers
+# Restart Claude Code to activate
+```
+
+---
+
+#### 💼 7. Odoo ERP Integration (Dockerized Accounting System)
+**Files:** `docker-compose.yml`, `Scripts/odoo_rpc_integration.py`
+
+Self-hosted Odoo Community Edition for professional accounting, invoicing, and real-time revenue tracking with graceful degradation.
+
+**🐳 Docker Architecture:**
+- **Odoo 16:** Open-source ERP system
+- **PostgreSQL 15:** Database backend
+- **Port 8069:** Web interface
+- **Persistent volumes:** Data retention across restarts
+
+**📊 JSON-RPC API Integration:**
+- `authenticate()` - Secure session management with retry logic
+- `create_invoice(partner_name, amount, description)` - Programmatic invoicing
+- `get_revenue_metrics()` - Real-time financial KPIs
+- All API calls protected by `@with_retry` decorator
+
+**🔄 CEO Briefing Integration:**
+- Automatically fetches live revenue data from Odoo
+- Falls back to mock calculations if Odoo offline
+- Data source clearly labeled in reports
+- Never crashes regardless of Odoo availability
+
+**Features:**
+- 💰 Real-time revenue tracking
+- 📝 Automated invoice creation
+- 📊 Financial KPI dashboard
+- 🛡️ Graceful degradation (offline fallback)
+- 🔐 Local-first (no cloud dependencies)
+
+**Startup Commands:**
+```bash
+docker-compose up -d      # Start Odoo + PostgreSQL
+docker-compose ps         # Check status
+docker-compose logs odoo  # View logs
+docker-compose down       # Stop containers
+```
+
+**First-Time Setup:**
+1. Start containers: `docker-compose up -d`
+2. Open browser: http://localhost:8069
+3. Create database with credentials from docker-compose.yml
+4. Install "Accounting" module
+5. Update credentials in `Scripts/odoo_rpc_integration.py`
+
+**Result:** Enterprise-grade accounting system with automatic revenue tracking and zero-downtime CEO briefings.
+
+---
+
 ### 🔄 Gold Tier Workflow
 
 ```
+Watchdog Manager Running (24/7 Process Supervision) →
+  Monitors: Orchestrator + All Watchers →
+    Auto-restarts on crash →
+
 Orchestrator Loop Running →
   Check /Needs_Action →
     If Tasks Found:
@@ -361,7 +505,22 @@ Orchestrator Loop Running →
       Wait 30 seconds →
       Check Again
   → Repeat Forever
+
+CEO Briefing Generator (Weekly) →
+  Attempt Odoo ERP Connection →
+    If Connected: Fetch Real Revenue Data →
+    If Offline: Fallback to Mock Calculations →
+  Generate Executive Report →
+  Save to /Logs/
+
+All Network Operations →
+  @with_retry Decorator →
+    Attempt 1 → Fail → Wait 1s →
+    Attempt 2 → Fail → Wait 2s →
+    Attempt 3 → Success ✓
 ```
+
+**Result:** Enterprise-grade autonomous operation with automatic failure recovery and zero-downtime financial reporting.
 
 ---
 
@@ -411,6 +570,9 @@ token.json
 - 📧 Personal email content and messages
 - 💬 Social media conversations
 - 📊 Business intelligence reports with revenue data
+- 🐳 Docker configuration overrides (docker-compose.override.yml)
+- 💾 Database files (*.db, *.sqlite, *.sqlite3)
+- 🔒 Environment variables (.env files)
 
 **What's Shared:**
 - ✅ Python scripts (watchers, integrators, generators)
@@ -437,6 +599,8 @@ Even with local-first architecture, we implement **strategic safety gates** to p
 - **Python 3.8+**
 - **Obsidian** (for vault management)
 - **Playwright** (for browser automation)
+- **Docker Desktop** (for Odoo ERP - optional but recommended)
+- **Node.js** (for MCP servers - optional but recommended)
 
 ### Quick Start
 
@@ -448,7 +612,7 @@ Even with local-first architecture, we implement **strategic safety gates** to p
 
 2. **Install Python dependencies**
    ```bash
-   pip install playwright
+   pip install playwright requests
    ```
 
 3. **Install Playwright browsers**
@@ -456,23 +620,40 @@ Even with local-first architecture, we implement **strategic safety gates** to p
    playwright install chromium
    ```
 
-4. **Configure Business Goals**
+4. **Setup MCP Servers (Optional - Enhanced Capabilities)**
+   ```bash
+   setup_mcps.bat  # Windows
+   # Restart Claude Code after installation
+   ```
+
+5. **Start Odoo ERP (Optional - Real Revenue Tracking)**
+   ```bash
+   docker-compose up -d
+   # Wait 60 seconds for initialization
+   # Open http://localhost:8069 to configure
+   ```
+
+6. **Configure Business Goals**
    - Edit `Business_Goals.md` with your Q1 2026 targets
 
-5. **Authenticate each watcher** (first-time only)
+7. **Authenticate each watcher** (first-time only)
    ```bash
-   python gmail_watcher.py           # Log into Gmail
+   python social_media_watcher.py   # Log into Facebook
    python whatsapp_watcher.py        # Scan WhatsApp QR code
    python twitter_watcher.py         # Log into Twitter/X
-   python social_media_watcher.py   # Log into Facebook
    ```
 
-6. **Start the master orchestrator**
+8. **Start the watchdog manager** (recommended for 24/7 operation)
    ```bash
-   python Scripts/ralph_wiggum_loop.py
+   python watchdog.py
    ```
 
-7. **Watch your AI employee work autonomously** across all platforms 🎉
+   **OR start the orchestrator directly**
+   ```bash
+   python orchestrator_loop.py
+   ```
+
+9. **Watch your AI employee work autonomously** across all platforms 🎉
 
 ---
 
@@ -500,8 +681,21 @@ Even with local-first architecture, we implement **strategic safety gates** to p
 
 ### 5️⃣ Business Intelligence Integration
 - Not just task automation—strategic insights
-- Revenue tracking, bottleneck identification
-- Proactive suggestions for business growth
+- Revenue tracking via Odoo ERP with real-time invoicing
+- Bottleneck identification and proactive suggestions
+- Graceful degradation when services unavailable
+
+### 6️⃣ Production-Grade Reliability
+- Watchdog process manager for 24/7 uptime
+- Exponential backoff retry logic on all network operations
+- Automatic crash recovery and process restart
+- Zero-downtime operation with fallback mechanisms
+
+### 7️⃣ Multiple MCP Servers
+- Browser MCP for autonomous web research
+- Memory MCP for persistent context across sessions
+- Token-free integration with Claude Code
+- Enhanced AI capabilities without additional costs
 
 ---
 
@@ -511,9 +705,11 @@ Even with local-first architecture, we implement **strategic safety gates** to p
 |--------------------------------------|-------------------------------|
 | ⏸️ Wait for user commands | ▶️ Actively monitors for new work |
 | 1️⃣ Process one task at a time | ♾️ Processes tasks continuously |
-| 🧠 No memory between sessions | 💾 Persistent state across sessions |
+| 🧠 No memory between sessions | 💾 Persistent state via MCP Memory Server |
 | 😴 No proactive behavior | 🚀 Proactive suggestions and alerts |
 | 👨‍💼 Human must manage workflow | 🤖 Self-managing workflow |
+| 💥 Crashes require manual restart | 🛡️ Auto-recovery via Watchdog Manager |
+| 📊 No financial integration | 💼 Real-time ERP accounting (Odoo) |
 
 ---
 
@@ -521,21 +717,34 @@ Even with local-first architecture, we implement **strategic safety gates** to p
 
 This AI Employee Vault represents a fundamental shift in how we interact with AI. Instead of reactive chatbots that wait for commands, we now have **proactive digital employees** that:
 
-- 👁️ Monitor your digital life 24/7
-- 🏷️ Categorize and prioritize incoming work
+- 👁️ Monitor your digital life 24/7 across multiple platforms
+- 🏷️ Categorize and prioritize incoming work intelligently
 - ✍️ Generate professional responses automatically
-- 📊 Provide executive-level business intelligence
+- 📊 Provide executive-level business intelligence with real-time revenue tracking
 - ♾️ Work continuously until all tasks are complete
+- 🛡️ Recover automatically from failures with exponential backoff
+- 💼 Integrate with enterprise accounting systems (Odoo ERP)
+- 🧠 Maintain persistent memory across sessions via MCP servers
 
-The Ralph Wiggum Loop ensures true autonomy: the AI keeps working, keeps helping, keeps processing—until every folder is clean and every task is done.
+The Ralph Wiggum Loop ensures true autonomy: the AI keeps working, keeps helping, keeps processing—until every folder is clean and every task is done. The Watchdog Manager ensures it never stops, automatically restarting crashed processes for true 24/7 operation.
 
-**This is the future of personal AI automation.**
+**This is not just automation. This is an enterprise-grade autonomous digital employee.**
 
 ---
 
 <div align="center">
 
-### 🎉 Gold Tier Achievement Unlocked
+### 🎉 Gold Tier Achievement Unlocked - 100% Complete
+
+**Production-Grade Features:**
+- ✅ 24/7 Watchdog Process Manager
+- ✅ Exponential Backoff Retry Logic
+- ✅ Odoo ERP Integration (Dockerized)
+- ✅ Multiple MCP Servers (Browser + Memory)
+- ✅ Graceful Degradation & Fallback Mechanisms
+- ✅ Cross-Platform Social Media Monitoring
+- ✅ Real-Time Revenue Tracking
+- ✅ Autonomous CEO Briefing Generation
 
 **"I'm helping! I'm helping!"** - Ralph Wiggum
 

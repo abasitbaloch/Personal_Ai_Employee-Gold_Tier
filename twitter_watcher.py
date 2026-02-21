@@ -9,6 +9,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+from Scripts.retry_handler import with_retry
 
 # Paths
 VAULT_ROOT = Path(__file__).parent
@@ -66,6 +67,13 @@ def create_action_file(sender, message_text):
     return filename
 
 
+@with_retry(max_attempts=3)
+def navigate_to_twitter(page):
+    """Navigate to Twitter Messages with retry logic."""
+    page.goto('https://x.com/messages', timeout=60000)
+
+
+@with_retry(max_attempts=3)
 def scan_twitter_messages(page):
     """Scan Twitter/X DMs for unread messages with business keywords."""
     try:
@@ -145,7 +153,7 @@ def run_twitter_watcher():
             page = browser.pages[0] if browser.pages else browser.new_page()
 
             print("[WATCHER] Navigating to Twitter/X Messages...")
-            page.goto('https://x.com/messages', timeout=60000)
+            navigate_to_twitter(page)
 
             # Wait for page to load
             print("[INFO] Waiting for Twitter/X to load...")

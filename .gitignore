@@ -11,6 +11,16 @@ user_data/
 .env.*.local
 *.env
 
+# Docker configuration overrides (may contain secrets)
+docker-compose.override.yml
+docker-compose.override.yaml
+
+# Database files (Odoo, SQLite, etc.)
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
 # OAuth and authentication credentials
 credentials.json
 token.json

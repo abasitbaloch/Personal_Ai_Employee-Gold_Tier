@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: ai_employee_postgres
+    environment:
+      POSTGRES_DB: odoo_db
+      POSTGRES_USER: odoo_user
+      POSTGRES_PASSWORD: odoo_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - odoo_postgres_data:/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - odoo_network
+
+  odoo:
+    image: odoo:16
+    container_name: ai_employee_odoo
+    depends_on:
+      - postgres
+    environment:
+      HOST: postgres
+      USER: odoo_user
+      PASSWORD: odoo_password
+      DB_NAME: odoo_db
+      DB_PORT: 5432
+    volumes:
+      - odoo_web_data:/var/lib/odoo
+      - odoo_config:/etc/odoo
+      - odoo_addons:/mnt/extra-addons
+    ports:
+      - "8069:8069"
+    restart: unless-stopped
+    networks:
+      - odoo_network
+
+volumes:
+  odoo_postgres_data:
+    driver: local
+  odoo_web_data:
+    driver: local
+  odoo_config:
+    driver: local
+  odoo_addons:
+    driver: local
+
+networks:
+  odoo_network:
+    driver: bridge

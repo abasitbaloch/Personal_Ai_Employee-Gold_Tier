@@ -2,12 +2,22 @@
 """
 Weekly Auditor - Gold Tier CEO Briefing Generator
 Generates executive-level business intelligence reports.
+Integrates with Odoo ERP for real-time revenue tracking.
 """
 
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
 import re
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] %(levelname)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 # Paths
 VAULT_ROOT = Path(__file__).parent.parent
@@ -95,6 +105,32 @@ def scan_completed_tasks():
             task_counts['documents'] += 1
 
     return task_counts
+
+
+def get_odoo_revenue():
+    """
+    Attempt to fetch real revenue data from Odoo ERP.
+    Falls back to None if Odoo is unreachable.
+
+    Returns:
+        dict or None: Revenue metrics from Odoo, or None if unavailable
+    """
+    try:
+        # Import Odoo integration
+        from Scripts.odoo_rpc_integration import get_revenue_metrics
+
+        logger.info("[ODOO] Attempting to fetch revenue from Odoo ERP...")
+        metrics = get_revenue_metrics()
+        logger.info(f"[ODOO] Successfully retrieved revenue: ${metrics['total_revenue']:.2f}")
+        return metrics
+
+    except ImportError:
+        logger.warning("[ODOO] Odoo integration module not found. Using fallback.")
+        return None
+    except Exception as e:
+        logger.warning(f"[ODOO] Odoo unavailable or error occurred: {e}")
+        logger.info("[ODOO] Falling back to mock revenue calculation.")
+        return None
 
 
 def calculate_mock_revenue(task_counts):
@@ -202,7 +238,18 @@ def generate_ceo_briefing():
     # Gather data
     goals = read_business_goals()
     task_counts = scan_completed_tasks()
-    revenue = calculate_mock_revenue(task_counts)
+
+    # Try to get revenue from Odoo, fallback to mock calculation
+    odoo_metrics = get_odoo_revenue()
+    if odoo_metrics:
+        revenue = odoo_metrics['total_revenue']
+        revenue_source = "Odoo ERP (Live Data)"
+        invoice_count = odoo_metrics['invoice_count']
+    else:
+        revenue = calculate_mock_revenue(task_counts)
+        revenue_source = "Mock Calculation (Odoo Offline)"
+        invoice_count = 0
+
     bottlenecks = identify_bottlenecks()
     suggestions = generate_proactive_suggestions(goals, task_counts, revenue)
 
@@ -219,6 +266,7 @@ def generate_ceo_briefing():
     report_content = f"""# CEO Executive Briefing
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 **Period:** Week of {date_str}
+**Data Source:** {revenue_source}
 
 ---
 
@@ -237,6 +285,7 @@ The AI Employee Vault processed **{task_counts['total']} tasks** this period, ge
 | **Estimated Revenue** | ${revenue:,} | ${revenue_target:,} | {revenue_percentage:.1f}% |
 | **Revenue Gap** | ${revenue_target - revenue:,} | - | - |
 | **Days Remaining** | {30 - datetime.now().day} | - | - |
+| **Invoices (Odoo)** | {invoice_count} | - | - |
 
 ### Revenue Breakdown by Source
 - Business Tasks: ${task_counts['business'] * 500:,} ({task_counts['business']} tasks × $500)
