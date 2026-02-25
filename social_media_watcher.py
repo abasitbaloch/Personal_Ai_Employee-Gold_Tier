@@ -84,7 +84,7 @@ def check_for_business_messages(page):
 @with_retry(max_attempts=3)
 def navigate_to_facebook(page):
     """Navigate to Facebook Messages with retry logic."""
-    page.goto('https://www.facebook.com/messages/t/')
+    page.goto('https://www.messenger.com/', timeout=0)
 
 
 @with_retry(max_attempts=3)
@@ -140,7 +140,9 @@ def run_watcher():
         context = p.chromium.launch_persistent_context(
             user_data_dir=str(USER_DATA_DIR),
             headless=False,  # Set to True after first login
-            args=['--disable-blink-features=AutomationControlled']
+            channel='chrome',
+            args=['--disable-blink-features=AutomationControlled', '--disable-extensions'],
+            ignore_default_args=['--enable-automation']
         )
 
         page = context.pages[0] if context.pages else context.new_page()
@@ -172,17 +174,17 @@ def run_watcher():
                 else:
                     print("   No new business messages.")
 
-                # Wait 60 seconds before next check
-                print(f"   Next check in 60 seconds...\n")
-                time.sleep(60)
+                # Wait 15 seconds before next check
+                print(f"   Next check in 15 seconds...\n")
+                time.sleep(15)
 
             except KeyboardInterrupt:
                 print("\n\n[STOPPED] Watcher stopped by user.")
                 break
             except Exception as e:
                 print(f"   Error in monitoring loop: {e}")
-                print("   Retrying in 60 seconds...\n")
-                time.sleep(60)
+                print("   Retrying in 15 seconds...\n")
+                time.sleep(15)
 
         context.close()
 

@@ -70,7 +70,7 @@ def create_action_file(sender, message_text):
 @with_retry(max_attempts=3)
 def navigate_to_twitter(page):
     """Navigate to Twitter Messages with retry logic."""
-    page.goto('https://x.com/messages', timeout=60000)
+    page.goto('https://x.com/messages', timeout=0)
 
 
 @with_retry(max_attempts=3)
@@ -147,7 +147,9 @@ def run_twitter_watcher():
             browser = p.chromium.launch_persistent_context(
                 user_data_dir=str(SESSION_PATH),
                 headless=False,
-                args=['--no-sandbox', '--disable-setuid-sandbox']
+                channel='chrome',
+                args=['--disable-blink-features=AutomationControlled', '--disable-extensions'],
+                ignore_default_args=['--enable-automation']
             )
 
             page = browser.pages[0] if browser.pages else browser.new_page()
@@ -172,11 +174,33 @@ def run_twitter_watcher():
                 print("[INFO] Waiting 60 seconds for login...")
                 time.sleep(60)
 
-            # Scan for business messages
-            action_count = scan_twitter_messages(page)
+            # Continuous monitoring loop
+            check_count = 0
+            print("[SUCCESS] Twitter/X watcher is now running continuously...")
 
-            print(f"[SUCCESS] Twitter/X scan complete!")
-            print(f"[INFO] Created {action_count} action item(s)")
+            while True:
+                try:
+                    check_count += 1
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] Check #{check_count} - Scanning Twitter/X messages...")
+
+                    # Scan for business messages
+                    action_count = scan_twitter_messages(page)
+
+                    if action_count > 0:
+                        print(f"[SUCCESS] Created {action_count} action item(s)")
+                    else:
+                        print("[INFO] No business messages found.")
+
+                    print("[INFO] Next check in 15 seconds...\n")
+                    time.sleep(15)
+
+                except KeyboardInterrupt:
+                    print("\n[STOPPED] Twitter/X watcher stopped by user.")
+                    break
+                except Exception as e:
+                    print(f"[ERROR] Error in monitoring loop: {e}")
+                    print("[INFO] Retrying in 15 seconds...\n")
+                    time.sleep(15)
 
             browser.close()
 
